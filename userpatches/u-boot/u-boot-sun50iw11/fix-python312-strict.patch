@@ -1,0 +1,34 @@
+diff --git a/scripts/dtc/pylibfdt/setup.py b/scripts/dtc/pylibfdt/setup.py
+index 992cdec30f5..c3aa5919b51 100755
+--- a/scripts/dtc/pylibfdt/setup.py
++++ b/scripts/dtc/pylibfdt/setup.py
+@@ -18,7 +18,11 @@ allows this script to be run stand-alone, e.g.:
+     ./pylibfdt/setup.py install [--prefix=...]
+ """
+ 
+-from distutils.core import setup, Extension
++from setuptools import setup, Extension
++# Armbian Hack: 修复 Python 3.12 兼容性
++# 增加 if v else v 判断，防止 v 为 None 时报错
++import setuptools.dist
++setuptools.dist.Distribution._normalize_version = lambda self, v: v.replace('u-boot-', '') if v else v
+ import os
+ import re
+ import sys
+diff --git a/tools/binman/main.py b/tools/binman/main.py
+index 8c1e478d54c..7743e6fb915 100755
+--- a/tools/binman/main.py
++++ b/tools/binman/main.py
+@@ -9,7 +9,11 @@
+ 
+ """See README for more information"""
+ 
+-from distutils.sysconfig import get_python_lib
++# from distutils.sysconfig import get_python_lib  <-- 注释掉或删掉
++import sysconfig
++
++def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
++    return sysconfig.get_path('platlib' if plat_specific else 'purelib')
+ import os
+ import site
+ import sys
